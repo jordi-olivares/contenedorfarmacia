@@ -1,0 +1,228 @@
+---
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: farmacia
+  name: farmacia
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmacia
+  template:
+    metadata:
+      labels:
+        app: farmacia 
+    spec:
+      containers:
+      - name: farmacia
+        image: jordiolivaresromerou/farmacia-service:0.0.1
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        env:
+        - name: TZ
+          value: America/Mexico_City
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Development
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: farmacia
+  name: farmacia
+spec:
+  #type: LoadBalancer
+  ports:
+  - port: 8091
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: farmacia
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: farmacia
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: farmacia
+  minReplicas: 1
+  maxReplicas: 3
+  metrics: 
+  - type: Resource 
+    resource: 
+      name: cpu 
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource 
+    resource: 
+      name: memory
+      target:
+        type: Utilization
+        averageValue: 200Mi
+---
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nodejs
+  name: nodejs 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodejs
+  template:
+    metadata:
+      labels:
+        app: nodejs 
+    spec:
+      containers:
+      - name: nodejs
+        image: hmeraz123/nodejs:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        env:
+        - name: TZ
+          value: America/Mexico_City
+        - name: NODE_ENV
+          value: development
+        ports:
+        - containerPort: 9100
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nodejs
+  name: nodejs
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 9100
+    protocol: TCP
+    targetPort: 9100
+  selector:
+    app: nodejs
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nodejs
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nodejs
+  minReplicas: 1
+  maxReplicas: 3
+  metrics: 
+  - type: Resource 
+    resource: 
+      name: cpu 
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource 
+    resource: 
+      name: memory
+      target:
+        type: Utilization
+        averageValue: 200Mi
+---
+
+
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: user
+  name: user 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user 
+    spec:
+      containers:
+      - name: user
+        image: jordiolivaresromerou/users-springboot:0.0.1
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        env:
+        - name: TZ
+          value: America/Mexico_City
+        - name: NODE_ENV
+          value: development
+        ports:
+        - containerPort: 30000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: user
+  name: user
+spec:
+  #type: LoadBalancer
+  ports:
+  - port: 30000
+    protocol: TCP
+    targetPort: 30000
+  selector:
+    app: user
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: user
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user
+  minReplicas: 1
+  maxReplicas: 3
+  metrics: 
+  - type: Resource 
+    resource: 
+      name: cpu 
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource 
+    resource: 
+      name: memory
+      target:
+        type: Utilization
+        averageValue: 200Mi
+---
