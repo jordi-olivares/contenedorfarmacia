@@ -184,7 +184,7 @@ spec:
         - name: NODE_ENV
           value: development
         ports:
-        - containerPort: 30000
+        - containerPort: 8090
 ---
 apiVersion: v1
 kind: Service
@@ -197,7 +197,7 @@ spec:
   ports:
   - port: 30000
     protocol: TCP
-    targetPort: 30000
+    targetPort: 8090
   selector:
     app: user
 ---
